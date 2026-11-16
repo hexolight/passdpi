@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>PassDpi.Settings</RootNamespace>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PassDpi.Core\PassDpi.Core.csproj" />
+    <InternalsVisibleTo Include="PassDpi.Tests" />
+  </ItemGroup>
+</Project>

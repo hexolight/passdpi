@@ -1,0 +1,28 @@
+# Build output
+bin/
+obj/
+artifacts/
+publish/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# Test results
+TestResults/
+*.trx
+coverage*/
+
+# Engine binaries are downloaded and hash-verified at install time; never commit them
+goodbyedpi*.zip
+**/engine/
+*.sys
+WinDivert*.dll
+goodbyedpi.exe
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

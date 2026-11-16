@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>PassDpi.App</RootNamespace>
+    <AssemblyName>PassDPI</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\passdpi.ico</ApplicationIcon>
+    <InvariantGlobalization>false</InvariantGlobalization>
+
+    <!-- WPF does not support trimming; self-contained single file instead. -->
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebuggerSupport>false</DebuggerSupport>
+    <TieredPGO>false</TieredPGO>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\passdpi.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PassDpi.Core\PassDpi.Core.csproj" />
+    <ProjectReference Include="..\PassDpi.Setup\PassDpi.Setup.csproj" />
+  </ItemGroup>
+</Project>

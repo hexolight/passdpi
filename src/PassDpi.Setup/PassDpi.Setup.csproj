@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>PassDpi.Setup</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PassDpi.Core\PassDpi.Core.csproj" />
+    <ProjectReference Include="..\PassDpi.Engine\PassDpi.Engine.csproj" />
+    <ProjectReference Include="..\PassDpi.Settings\PassDpi.Settings.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,366 @@
+<Window x:Class="PassDpi.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="clr-namespace:PassDpi.App"
+        Title="PassDPI" Width="420" Height="660" MinWidth="380" MinHeight="580"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Bg}" Foreground="{DynamicResource Text}"
+        FontFamily="{StaticResource UiFont}" FontSize="13"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+
+    <Window.Resources>
+        <app:EqConverter x:Key="Eq"/>
+        <app:EqVisConverter x:Key="EqVis"/>
+    </Window.Resources>
+
+    <Grid Margin="16,12,16,14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" Margin="2,0,2,10">
+            <Border Width="28" Height="28" CornerRadius="8" Background="{DynamicResource Accent}" VerticalAlignment="Center">
+                <Path Data="M7,15 L12,20 L21,9" Stroke="{DynamicResource OnAccent}" StrokeThickness="2.6"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+            </Border>
+            <TextBlock Text="PassDPI" Style="{StaticResource H1}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding StateText}" Style="{StaticResource Label}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                       Visibility="{Binding IsConnected, Converter={StaticResource BoolVis}}"/>
+        </DockPanel>
+
+        <!-- Tabs -->
+        <Border Grid.Row="1" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                CornerRadius="10" Padding="2" Margin="0,0,0,12">
+            <UniformGrid Rows="1">
+                <RadioButton Style="{StaticResource Segment}" GroupName="tabs"
+                             Content="{Binding [Tab.Home], Source={x:Static app:Loc.I}}"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource Eq}, ConverterParameter=0}"/>
+                <RadioButton Style="{StaticResource Segment}" GroupName="tabs"
+                             Content="{Binding [Tab.Profiles], Source={x:Static app:Loc.I}}"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource Eq}, ConverterParameter=1}"/>
+                <RadioButton Style="{StaticResource Segment}" GroupName="tabs"
+                             Content="{Binding [Tab.Sites], Source={x:Static app:Loc.I}}"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource Eq}, ConverterParameter=2}"/>
+                <RadioButton Style="{StaticResource Segment}" GroupName="tabs"
+                             Content="{Binding [Tab.Log], Source={x:Static app:Loc.I}}"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource Eq}, ConverterParameter=3}"/>
+                <RadioButton Style="{StaticResource Segment}" GroupName="tabs"
+                             Content="{Binding [Tab.Settings], Source={x:Static app:Loc.I}}"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource Eq}, ConverterParameter=4}"/>
+            </UniformGrid>
+        </Border>
+
+        <!-- Content -->
+        <Grid Grid.Row="2">
+
+            <!-- ============ HOME ============ -->
+            <Grid Visibility="{Binding SelectedTab, Converter={StaticResource EqVis}, ConverterParameter=0}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" VerticalAlignment="Center">
+                    <Button x:Name="BigButton" Command="{Binding SetupCommand}" Width="196" Height="196" Cursor="Hand"
+                            HorizontalAlignment="Center" FocusVisualStyle="{x:Null}"
+                            AutomationProperties.Name="{Binding [Home.Setup], Source={x:Static app:Loc.I}}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <Ellipse x:Name="halo" Fill="{DynamicResource OffSoft}"/>
+                                    <Ellipse x:Name="ring" Margin="10" StrokeThickness="5" Stroke="{DynamicResource Off}" Fill="{DynamicResource Surface}"/>
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding BigButtonText}" FontSize="26" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource Text}" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{Binding StateText}" FontSize="12" Foreground="{DynamicResource SubText}"
+                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding StateKind}" Value="Running">
+                                        <Setter TargetName="ring" Property="Stroke" Value="{DynamicResource Good}"/>
+                                        <Setter TargetName="halo" Property="Fill" Value="{DynamicResource GoodSoft}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding StateKind}" Value="Testing">
+                                        <Setter TargetName="ring" Property="Stroke" Value="{DynamicResource Accent}"/>
+                                        <Setter TargetName="halo" Property="Fill" Value="{DynamicResource AccentSoft}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding StateKind}" Value="Starting">
+                                        <Setter TargetName="ring" Property="Stroke" Value="{DynamicResource Accent}"/>
+                                        <Setter TargetName="halo" Property="Fill" Value="{DynamicResource AccentSoft}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding StateKind}" Value="Error">
+                                        <Setter TargetName="ring" Property="Stroke" Value="{DynamicResource Bad}"/>
+                                        <Setter TargetName="halo" Property="Fill" Value="{DynamicResource BadSoft}"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="ring" Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="ring" Property="Margin" Value="13"/>
+                                    </Trigger>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter TargetName="ring" Property="StrokeThickness" Value="7"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Test progress -->
+                    <StackPanel Margin="10,16,10,0" Visibility="{Binding IsTesting, Converter={StaticResource BoolVis}}">
+                        <ProgressBar Value="{Binding ProgressValue, Mode=OneWay}" Maximum="100"/>
+                        <DockPanel Margin="0,6,0,0">
+                            <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Command="{Binding CancelTestCommand}"
+                                    Content="{Binding [Home.Cancel], Source={x:Static app:Loc.I}}"/>
+                            <TextBlock Text="{Binding ProgressText}" Style="{StaticResource Sub}" VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                        </DockPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,8,0,0">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,10">
+                            <CheckBox DockPanel.Dock="Right" Style="{StaticResource Switch}" IsChecked="{Binding ProtectionEnabled}"
+                                      IsEnabled="{Binding IsConnected}"
+                                      AutomationProperties.Name="{Binding [Home.Protection], Source={x:Static app:Loc.I}}"/>
+                            <TextBlock Text="{Binding [Home.Protection], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="0"/>
+                        </DockPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/><RowDefinition/><RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding [Home.Profile], Source={x:Static app:Loc.I}}" Style="{StaticResource Label}" Margin="0,2,16,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ProfileText}" TextTrimming="CharacterEllipsis" Margin="0,1"/>
+                            <TextBlock Grid.Row="1" Text="{Binding [Home.Network], Source={x:Static app:Loc.I}}" Style="{StaticResource Label}" Margin="0,2,16,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding NetworkText}" TextTrimming="CharacterEllipsis" Margin="0,1"/>
+                            <TextBlock Grid.Row="2" Text="{Binding [Home.Mode], Source={x:Static app:Loc.I}}" Style="{StaticResource Label}" Margin="0,2,16,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ModeText}" Margin="0,1"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Row="2" Text="{Binding DetailText}" Style="{StaticResource Sub}" Margin="4,10,4,0" TextAlignment="Center"/>
+            </Grid>
+
+            <!-- ============ PROFILES ============ -->
+            <Grid Visibility="{Binding SelectedTab, Converter={StaticResource EqVis}, ConverterParameter=1}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Margin="2,0,2,8">
+                    <TextBlock Text="{Binding [Profiles.Title], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}"/>
+                    <TextBlock Text="{Binding [Profiles.Hint], Source={x:Static app:Loc.I}}" Style="{StaticResource Sub}"/>
+                </StackPanel>
+                <Border Grid.Row="1" Style="{StaticResource Card}" Padding="6">
+                    <ListBox Style="{StaticResource PlainList}" ItemContainerStyle="{StaticResource PlainItem}"
+                             ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Text}"/>
+                                    <TextBlock Text="{Binding Arguments}" FontFamily="{StaticResource MonoFont}" FontSize="11"
+                                               Foreground="{DynamicResource SubText}" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="{Binding [Profiles.Auto], Source={x:Static app:Loc.I}}" Command="{Binding AutoModeCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource PrimaryButton}" Content="{Binding [Profiles.Apply], Source={x:Static app:Loc.I}}" Command="{Binding ApplyProfileCommand}"/>
+                </StackPanel>
+                <Border Grid.Row="3" Style="{StaticResource Card}" Margin="0,10,0,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [Profiles.Custom], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}"/>
+                        <TextBox Text="{Binding CustomArgs, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" FontSize="12"/>
+                        <TextBlock Text="{Binding [Profiles.CustomHint], Source={x:Static app:Loc.I}}" Style="{StaticResource Sub}" Margin="0,6,0,0"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                            <Button Content="{Binding [Profiles.CustomClear], Source={x:Static app:Loc.I}}" Command="{Binding ClearCustomArgsCommand}" Margin="0,0,8,0"/>
+                            <Button Content="{Binding [Profiles.CustomSave], Source={x:Static app:Loc.I}}" Command="{Binding SaveCustomArgsCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ============ SITES ============ -->
+            <Grid Visibility="{Binding SelectedTab, Converter={StaticResource EqVis}, ConverterParameter=2}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Margin="2,0,2,8">
+                    <TextBlock Text="{Binding [Sites.Title], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}"/>
+                    <TextBlock Text="{Binding [Sites.Hint], Source={x:Static app:Loc.I}}" Style="{StaticResource Sub}"/>
+                </StackPanel>
+                <Border Grid.Row="1" Style="{StaticResource Card}" Padding="6">
+                    <ListBox Style="{StaticResource PlainList}" ItemContainerStyle="{StaticResource PlainItem}" ItemsSource="{Binding Sites}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel LastChildFill="True">
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}"
+                                            Content="{Binding [Sites.Remove], Source={x:Static app:Loc.I}}"
+                                            Command="{Binding DataContext.RemoveSiteCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"/>
+                                    <CheckBox DockPanel.Dock="Right" Style="{StaticResource Check}" Margin="8,0"
+                                              IsChecked="{Binding IsControl}" Click="SiteChanged"
+                                              Content="{Binding [Sites.Control], Source={x:Static app:Loc.I}}"/>
+                                    <TextBlock Text="{Binding Url}" Foreground="{DynamicResource Text}" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+                <DockPanel Grid.Row="2" Margin="0,8,0,0">
+                    <Button DockPanel.Dock="Right" Content="{Binding [Sites.Add], Source={x:Static app:Loc.I}}" Command="{Binding AddSiteCommand}" Margin="8,0,0,0"/>
+                    <TextBox x:Name="NewSiteBox" Text="{Binding NewSiteUrl, UpdateSourceTrigger=PropertyChanged}" KeyDown="NewSiteKeyDown"
+                             AutomationProperties.Name="{Binding [Sites.Placeholder], Source={x:Static app:Loc.I}}"/>
+                </DockPanel>
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="{Binding [Sites.Defaults], Source={x:Static app:Loc.I}}" Command="{Binding ResetSitesCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource PrimaryButton}" Content="{Binding [Sites.Save], Source={x:Static app:Loc.I}}" Command="{Binding SaveSitesCommand}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ============ LOG ============ -->
+            <Grid Visibility="{Binding SelectedTab, Converter={StaticResource EqVis}, ConverterParameter=3}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Border Style="{StaticResource Card}" Padding="4">
+                    <TextBox x:Name="LogBox" Text="{Binding LogText, Mode=OneWay}" IsReadOnly="True" TextWrapping="NoWrap"
+                             FontFamily="{StaticResource MonoFont}" FontSize="11" Background="Transparent" BorderThickness="0"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="LogChanged"/>
+                </Border>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="{Binding [Log.Refresh], Source={x:Static app:Loc.I}}" Command="{Binding RefreshLogCommand}" Margin="0,0,8,0"/>
+                    <Button Content="{Binding [Log.Copy], Source={x:Static app:Loc.I}}" Command="{Binding CopyLogCommand}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ============ SETTINGS ============ -->
+            <ScrollViewer Visibility="{Binding SelectedTab, Converter={StaticResource EqVis}, ConverterParameter=4}"
+                          VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding [Settings.Language], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}"/>
+                            <Border Background="{DynamicResource Bg}" CornerRadius="9" Padding="1" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Style="{StaticResource Segment}" GroupName="lang" Content="Türkçe" MinWidth="90"
+                                                 IsChecked="{Binding Language, Mode=OneWay, Converter={StaticResource Eq}, ConverterParameter=tr}"
+                                                 Command="{Binding SetLanguageCommand}" CommandParameter="tr"/>
+                                    <RadioButton Style="{StaticResource Segment}" GroupName="lang" Content="English" MinWidth="90"
+                                                 IsChecked="{Binding Language, Mode=OneWay, Converter={StaticResource Eq}, ConverterParameter=en}"
+                                                 Command="{Binding SetLanguageCommand}" CommandParameter="en"/>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="{Binding [Settings.Theme], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}" Margin="0,14,0,4"/>
+                            <Border Background="{DynamicResource Bg}" CornerRadius="9" Padding="1" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Style="{StaticResource Segment}" GroupName="theme" MinWidth="90"
+                                                 Content="{Binding [Settings.Dark], Source={x:Static app:Loc.I}}"
+                                                 IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource Eq}, ConverterParameter=dark}"
+                                                 Command="{Binding SetThemeCommand}" CommandParameter="dark"/>
+                                    <RadioButton Style="{StaticResource Segment}" GroupName="theme" MinWidth="90"
+                                                 Content="{Binding [Settings.Light], Source={x:Static app:Loc.I}}"
+                                                 IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource Eq}, ConverterParameter=light}"
+                                                 Command="{Binding SetThemeCommand}" CommandParameter="light"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,10,0,0">
+                        <StackPanel>
+                            <DockPanel>
+                                <CheckBox DockPanel.Dock="Right" Style="{StaticResource Switch}" IsChecked="{Binding AutoStart}"
+                                          IsEnabled="{Binding IsConnected}"
+                                          AutomationProperties.Name="{Binding [Settings.AutoStart], Source={x:Static app:Loc.I}}"/>
+                                <TextBlock Text="{Binding [Settings.AutoStart], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="0"/>
+                            </DockPanel>
+                            <TextBlock Text="{Binding [Settings.AutoStartHint], Source={x:Static app:Loc.I}}" Style="{StaticResource Sub}" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,10,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding [Settings.Uninstall], Source={x:Static app:Loc.I}}" Style="{StaticResource H2}"/>
+                            <TextBlock Text="{Binding [Settings.UninstallHint], Source={x:Static app:Loc.I}}" Style="{StaticResource Sub}"/>
+                            <Button Style="{StaticResource DangerButton}" HorizontalAlignment="Left" Margin="0,10,0,0"
+                                    Content="{Binding [Settings.Uninstall], Source={x:Static app:Loc.I}}" Command="{Binding UninstallCommand}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="4,12,4,0">
+                        <TextBlock Style="{StaticResource Label}">
+                            <Run Text="{Binding [Settings.Version], Source={x:Static app:Loc.I}, Mode=OneWay}"/>
+                            <Run Text="{Binding VersionText, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding [Settings.About], Source={x:Static app:Loc.I}}" Style="{StaticResource Sub}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ============ SERVICE OVERLAY ============ -->
+            <Border Background="{DynamicResource Bg}" Visibility="{Binding ShowOverlay, Converter={StaticResource BoolVis}}">
+                <Border Style="{StaticResource Card}" VerticalAlignment="Center" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="{Binding OverlayText}" Style="{StaticResource H2}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding [Svc.NotInstalledHint], Source={x:Static app:Loc.I}}" Style="{StaticResource Sub}"
+                                   Visibility="{Binding Connection, Converter={StaticResource EqVis}, ConverterParameter=NotInstalled}"/>
+                        <ProgressBar IsIndeterminate="True" Margin="0,12,0,0"
+                                     Visibility="{Binding ShowWorking, Converter={StaticResource BoolVis}}"/>
+                        <StackPanel Margin="0,14,0,0" Visibility="{Binding ShowInstall, Converter={StaticResource BoolVis}}">
+                            <Button Style="{StaticResource PrimaryButton}" Command="{Binding StartServiceCommand}" Margin="0,0,0,8"
+                                    Content="{Binding [Svc.Start], Source={x:Static app:Loc.I}}"
+                                    Visibility="{Binding ShowStart, Converter={StaticResource BoolVis}}"/>
+                            <Button Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}" Margin="0,0,0,8"
+                                    Content="{Binding [Svc.Install], Source={x:Static app:Loc.I}}"
+                                    Visibility="{Binding Connection, Converter={StaticResource EqVis}, ConverterParameter=NotInstalled}"/>
+                            <Button Command="{Binding InstallCommand}" Margin="0,0,0,8"
+                                    Content="{Binding [Svc.Reinstall], Source={x:Static app:Loc.I}}"
+                                    Visibility="{Binding Connection, Converter={StaticResource EqVis}, ConverterParameter=Stopped}"/>
+                            <Button Style="{StaticResource GhostButton}" Command="{Binding InstallFromFolderCommand}"
+                                    Content="{Binding [Svc.InstallFromFolder], Source={x:Static app:Loc.I}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Grid>
+
+        <!-- Banner -->
+        <Border Grid.Row="3" CornerRadius="10" Padding="12,9" Margin="0,10,0,0"
+                Visibility="{Binding HasBanner, Converter={StaticResource BoolVis}}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding BannerIsError}" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource BadSoft}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding Banner}" TextWrapping="Wrap" Foreground="{DynamicResource Text}" FontSize="12.5"/>
+        </Border>
+    </Grid>
+</Window>
