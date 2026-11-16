@@ -36,8 +36,9 @@ tamamlanması gerekir. Bu yüzden ISS uyarı sayfaları ve zehirlenmiş DNS ceva
 Hiçbir profil işe yaramazsa motor **kapalı** bırakılır ve bağlantınız olduğu gibi kalır.
 
 **Profiller** resmi GoodbyeDPI README'sinden alınmıştır: `-9`, `-5`…`-8` (modern) ve `-1`…`-4`
-(eski) modları. Her mod ayrıca DNS yönlendirmesiyle de denenir: GoodbyeDPI'ın kendi
-`2_any_country_dnsredir.cmd` dosyasındaki gibi 1253 portunda Yandex DNS, ve Cloudflare DNS.
+(eski) modları. Her mod ayrıca DNS yönlendirmesiyle de denenir: önce en hızlısı olan Cloudflare
+DNS, sonra GoodbyeDPI'ın kendi `2_any_country_dnsredir.cmd` dosyasındaki gibi 1253 portunda Yandex
+DNS. Yandex, ISS 53 portunu ele geçirdiğinde de çalışır.
 Toplam 27 profil vardır ve en olasıdan en az olasıya doğru test edilir.
 
 **Ağ hafızası.** Sonuçlar ağ başına saklanır. Ağ anahtarı; Wi-Fi adı (SSID), ağ geçidi IP'si ve

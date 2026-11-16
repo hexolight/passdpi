@@ -18,9 +18,12 @@ public static class ProfileCatalog
 
     private static readonly Dns[] DnsVariants =
     {
-        // From the official 2_any_country_dnsredir.cmd
-        new("ydns", "Yandex DNS :1253", new[] { "--dns-addr", "77.88.8.8", "--dns-port", "1253", "--dnsv6-addr", "2a02:6b8::feed:0ff", "--dnsv6-port", "1253" }),
+        // Fastest first: Cloudflare answers in ~15 ms where Yandex :1253 can add ~100 ms to every
+        // uncached lookup. The test stops at the first profile that opens every site, and a poisoned
+        // or hijacked port-53 answer fails the certificate check, so the test falls through to Yandex.
         new("cfdns", "Cloudflare DNS", new[] { "--dns-addr", "1.1.1.1", "--dns-port", "53", "--dnsv6-addr", "2606:4700:4700::1111", "--dnsv6-port", "53" }),
+        // From the official 2_any_country_dnsredir.cmd; the non-standard port survives port-53 hijacking.
+        new("ydns", "Yandex DNS :1253", new[] { "--dns-addr", "77.88.8.8", "--dns-port", "1253", "--dnsv6-addr", "2a02:6b8::feed:0ff", "--dnsv6-port", "1253" }),
         new("", "", Array.Empty<string>()),
     };
 

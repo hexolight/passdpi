@@ -69,6 +69,13 @@ public class ArgumentWhitelistTests
     }
 
     [Fact]
+    public void Fast_cloudflare_dns_is_tried_before_yandex()
+    {
+        var ids = ProfileCatalog.BuiltIn.Select(p => p.Id).ToList();
+        Assert.Equal(new[] { "m9-cfdns", "m9-ydns", "m9" }, ids.Take(3));
+    }
+
+    [Fact]
     public void Custom_profile_requires_valid_args()
     {
         Assert.Null(ProfileCatalog.Find("custom", null));

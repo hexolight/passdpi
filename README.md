@@ -33,8 +33,9 @@ so ISP block pages and poisoned DNS answers count as failures. If no profile hel
 **off** and your connection is left exactly as it was.
 
 **Profiles** come from the official GoodbyeDPI README: modesets `-9`, `-5`…`-8` (modern) and
-`-1`…`-4` (legacy). Each one is also tried with DNS redirection: Yandex DNS on port 1253, as in
-GoodbyeDPI's own `2_any_country_dnsredir.cmd`, and Cloudflare DNS. That makes 27 profiles, tested
+`-1`…`-4` (legacy). Each one is also tried with DNS redirection: Cloudflare DNS first, because it
+is the fastest, then Yandex DNS on port 1253 as in GoodbyeDPI's own `2_any_country_dnsredir.cmd`,
+which still works where the ISP hijacks port 53. That makes 27 profiles, tested
 from most to least likely to work.
 
 **Network memory.** Results are stored per network. The network key is a salted SHA-256 of the
