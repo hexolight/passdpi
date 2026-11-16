@@ -1,0 +1,32 @@
+{
+  "brand": "PassDPI",
+  "tagline": "Blocked sites, open again: one click",
+  "brief": "A lightweight, open-source Windows tool that gets around ISP DPI blocking by testing GoodbyeDPI profiles and remembering the one that works. It should feel light, quiet, trustworthy and clever, and not look like the usual shield-and-padlock VPN logos.",
+  "adjectives": ["light", "quiet", "trustworthy", "clever"],
+  "criteria": "Distinct from VPN/security clichés, clear at 16 px, works in one colour and reversed, explains the mechanism without a lock or a globe.",
+  "industry": "software",
+  "nav": ["How it works", "Install", "GitHub"],
+  "brand_color": "#FF5A1F",
+  "greyscale": false,
+  "designer": "PassDPI",
+  "round": 2,
+  "concepts": [
+    {
+      "name": "Slipped Packet",
+      "symbol": "master/passdpi-symbol.svg",
+      "lockup": "master/passdpi-horizontal.svg",
+      "symbol_on_tile": "master/passdpi-symbol-small-reversed.svg",
+      "lockup_on_dark": "master/passdpi-horizontal-reversed.svg",
+      "tile_color": "#16181D",
+      "idea": "A packet split in two and slid past itself, which is how GoodbyeDPI fragments traffic so the filter can't read it.",
+      "rationale": [
+        "Shows the mechanism, not a lock, shield or globe",
+        "One solid shape: clear at 16 px and as a Windows .ico",
+        "The orange half is the piece that got through",
+        "Constructed geometric wordmark, no licensed font inside"
+      ]
+    }
+  ],
+  "recommendation": "Slipped Packet in Ink #16181D and Signal Orange #FF5A1F.",
+  "next_steps": ["Swap the new .ico into the app", "Consider aligning the app accent with the brand orange", "Run a trademark / reverse-image search"]
+}

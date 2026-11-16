@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="branding/logo/export/png/passdpi-horizontal-reversed.png">
+    <img src="branding/logo/export/png/passdpi-horizontal.png" alt="PassDPI" width="360">
+  </picture>
+</p>
+
 # PassDPI
 
 [English](README.md) · **Türkçe**
@@ -47,9 +54,9 @@ saklanmaz ve hiçbir yere bir şey gönderilmez.
 
 ## Kurulum
 
-1. [Releases](../../releases) sayfasından `PassDPI-<sürüm>-win-x64.zip` dosyasını indirip açın.
-   `PassDPI.exe` ile `PassDpi.Service.exe` aynı klasörde kalmalı.
-2. `PassDPI.exe`'yi çalıştırıp **Kur**'a tıklayın. Windows bir kez yönetici onayı ister.
+1. [Releases](../../releases) sayfasından `PassDPI-<sürüm>-win-x64.exe` dosyasını indirin. Tek bir
+   dosyadır; servis bu dosyanın içine gömülüdür.
+2. Dosyayı çalıştırıp **Kur**'a tıklayın. Windows bir kez yönetici onayı ister.
    - Kurulum PassDPI'ı `C:\Program Files\PassDPI` klasörüne kopyalar.
    - GoodbyeDPI `0.2.3rc3` sürümünü resmi GitHub release'inden indirir ve SHA-256 ile doğrular.
      İsterseniz **Mevcut GoodbyeDPI klasöründen kur** seçeneğini kullanabilirsiniz. Yalnızca bu
@@ -103,11 +110,12 @@ Gereksinimler: Windows 10/11 x64 ve .NET 8 SDK (daha yeni SDK'lar da çalışır
 ```powershell
 dotnet build PassDpi.sln -c Release
 dotnet test tests/PassDpi.Tests -c Release
-pwsh build/publish.ps1          # → artifacts/PassDPI-<sürüm>-win-x64.zip
+powershell -File build/publish.ps1   # → artifacts/PassDPI-<sürüm>-win-x64.exe
 ```
 
-Servis trimmed, self-contained ve tek dosya olarak yayınlanır. WPF uygulaması da self-contained ve
-tek dosyadır, ancak WPF trimming'i desteklemediği için trimmed değildir.
+Servis trimmed, self-contained ve tek dosya olarak yayınlanır ve WPF uygulamasının içine gömülür.
+WPF uygulaması da self-contained ve tek dosyadır, ancak WPF trimming'i desteklemediği için trimmed
+değildir. Kurulum, servisi `C:\Program Files\PassDPI` klasörüne çıkarır.
 
 ## Lisans
 

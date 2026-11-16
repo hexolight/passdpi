@@ -39,7 +39,7 @@ jobs:
         with:
           name: PassDPI-win-x64
           path: |
-            artifacts/*.zip
+            artifacts/*.exe
             artifacts/*.sha256
 
   release:
@@ -56,5 +56,5 @@ jobs:
         with:
           draft: true
           files: |
-            *.zip
+            *.exe
             *.sha256

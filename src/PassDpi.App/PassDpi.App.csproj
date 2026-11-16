@@ -20,6 +20,11 @@
   <ItemGroup>
     <Resource Include="Assets\passdpi.ico" />
   </ItemGroup>
+  <!-- Release: build/publish.ps1 publishes the trimmed service first and passes its path here, so the
+       download is a single PassDPI.exe. The installer extracts it to Program Files. -->
+  <ItemGroup Condition="'$(EmbedServicePath)' != ''">
+    <EmbeddedResource Include="$(EmbedServicePath)" LogicalName="PassDpi.Service.exe" Visible="false" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PassDpi.Core\PassDpi.Core.csproj" />
     <ProjectReference Include="..\PassDpi.Setup\PassDpi.Setup.csproj" />

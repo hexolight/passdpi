@@ -34,11 +34,11 @@ public static class Installer
         _ = new SecurityIdentifier(ownerSid); // throws on malformed SID
 
         var sourceDir = Path.GetDirectoryName(Environment.ProcessPath)!;
-        var sourceService = Path.Combine(sourceDir, AppPaths.ServiceExeName);
         var runningFromInstallDir = string.Equals(Path.GetFullPath(sourceDir).TrimEnd('\\'),
             Path.GetFullPath(AppPaths.InstallDir).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
-        if (!runningFromInstallDir && !File.Exists(sourceService))
-            throw new FileNotFoundException($"{AppPaths.ServiceExeName} must be next to {AppPaths.AppExeName}.");
+        var serviceBytes = runningFromInstallDir ? null : ReadServiceBinary(sourceDir)
+            ?? throw new FileNotFoundException(
+                $"{AppPaths.ServiceExeName} is neither embedded in {AppPaths.AppExeName} nor next to it.");
 
         // 1) Stop an existing service so its exe can be replaced; keep settings.
         var existed = ServiceControl.Exists(AppPaths.ServiceName);
@@ -56,8 +56,8 @@ public static class Installer
         // 3) Binaries (read into memory, then write: the bytes we copy are the bytes we read).
         if (!runningFromInstallDir)
         {
-            CopyFile(Environment.ProcessPath!, AppPaths.AppExePath);
-            CopyFile(sourceService, AppPaths.ServiceExePath);
+            WriteFile(File.ReadAllBytes(Environment.ProcessPath!), AppPaths.AppExePath);
+            WriteFile(serviceBytes!, AppPaths.ServiceExePath);
             log.Info("Copied PassDPI binaries to " + AppPaths.InstallDir);
         }
 
@@ -113,9 +113,31 @@ public static class Installer
         Core.Uninstall.ScheduleInstallDirRemoval(log);
     }
 
-    private static void CopyFile(string src, string dst)
+    /// <summary>Resource name of the service binary embedded into PassDPI.exe by build/publish.ps1.</summary>
+    public const string EmbeddedServiceResource = "PassDpi.Service.exe";
+
+    /// <summary>
+    /// The release ships as one PassDPI.exe with the (trimmed) service exe embedded in it, so it is
+    /// extracted from our own image: the same trust as the running exe. Dev builds fall back to a sibling file.
+    /// </summary>
+    private static byte[]? ReadServiceBinary(string sourceDir)
     {
-        var bytes = File.ReadAllBytes(src);
+        var asm = System.Reflection.Assembly.GetEntryAssembly();
+        using (var s = asm?.GetManifestResourceStream(EmbeddedServiceResource))
+        {
+            if (s != null)
+            {
+                using var ms = new MemoryStream();
+                s.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+        var sibling = Path.Combine(sourceDir, AppPaths.ServiceExeName);
+        return File.Exists(sibling) ? File.ReadAllBytes(sibling) : null;
+    }
+
+    private static void WriteFile(byte[] bytes, string dst)
+    {
         var tmp = dst + ".new";
         var old = dst + ".old";
         File.WriteAllBytes(tmp, bytes);

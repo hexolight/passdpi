@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="branding/logo/export/png/passdpi-horizontal-reversed.png">
+    <img src="branding/logo/export/png/passdpi-horizontal.png" alt="PassDPI" width="360">
+  </picture>
+</p>
+
 # PassDPI
 
 **English** · [Türkçe](README.tr.md)
@@ -44,9 +51,9 @@ is sent anywhere.
 
 ## Install
 
-1. Download `PassDPI-<version>-win-x64.zip` from [Releases](../../releases) and extract it.
-   Keep `PassDPI.exe` and `PassDpi.Service.exe` together.
-2. Run `PassDPI.exe` and click **Install**. Windows asks for administrator approval once.
+1. Download `PassDPI-<version>-win-x64.exe` from [Releases](../../releases). It is a single file;
+   the service is embedded in it.
+2. Run it and click **Install**. Windows asks for administrator approval once.
    - The installer copies PassDPI to `C:\Program Files\PassDPI`.
    - It downloads GoodbyeDPI `0.2.3rc3` from the official GitHub release and checks its SHA-256.
      Alternatively, choose **Install from an existing GoodbyeDPI folder** (only that exact version
@@ -97,11 +104,12 @@ Requirements: Windows 10/11 x64 and the .NET 8 SDK (newer SDKs work too).
 ```powershell
 dotnet build PassDpi.sln -c Release
 dotnet test tests/PassDpi.Tests -c Release
-pwsh build/publish.ps1          # → artifacts/PassDPI-<version>-win-x64.zip
+powershell -File build/publish.ps1   # → artifacts/PassDPI-<version>-win-x64.exe
 ```
 
-The service is published as a trimmed, self-contained single file. The WPF app is self-contained
-and single-file but not trimmed, because WPF doesn't support trimming.
+The service is published as a trimmed, self-contained single file and embedded into the WPF app,
+which is self-contained and single-file but not trimmed, because WPF doesn't support trimming. The
+installer extracts the service to `C:\Program Files\PassDPI`.
 
 Developer mode: `PassDpi.Service.exe --console` runs the service in the foreground. It needs an
 elevated prompt and an install folder at `C:\Program Files\PassDPI`.
