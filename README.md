@@ -10,8 +10,9 @@
 **English** · [Türkçe](README.tr.md)
 
 A lightweight Windows tool that gets around ISP **DPI-based site blocking** using
-[GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI). Press **Set up** and PassDPI tests
-GoodbyeDPI profiles on your connection, picks the one that works, and remembers it per network.
+[GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI). Press **Run test** and PassDPI tests
+GoodbyeDPI profiles on your connection, picks the one that works without breaking other sites, and
+remembers it per network. After that, **Connect** starts the saved profile right away, without a test.
 
 - One-time administrator approval at install; after that it never asks again.
 - A small Windows service runs GoodbyeDPI in the background. When idle it uses ~0% CPU
@@ -59,7 +60,7 @@ is sent anywhere.
      Alternatively, choose **Install from an existing GoodbyeDPI folder** (only that exact version
      is accepted; it is copied into the protected folder).
    - It registers and starts the `PassDPI` service.
-3. Press **Set up**.
+3. Press **Run test** once. From then on, **Connect** starts the saved profile without testing again.
 
 Later you can open PassDPI from the Start menu.
 

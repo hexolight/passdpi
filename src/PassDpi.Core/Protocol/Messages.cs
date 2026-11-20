@@ -26,6 +26,7 @@ public enum Command
     SetTestSites,   // Sites
     SetCustomArgs,  // CustomArgs (validated against the GoodbyeDPI flag whitelist)
     Uninstall,
+    Connect,        // start the saved profile right away, no test (manual > this network's memory > last used)
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<MessageKind>))]
@@ -86,6 +87,9 @@ public sealed class ServiceStatus
     public string? ActiveProfileName { get; set; }
     /// <summary>null = automatic (test + per-network memory), otherwise the manually pinned profile.</summary>
     public string? ManualProfileId { get; set; }
+    /// <summary>The profile "Connect" would use; null if there is none yet (run a test first).</summary>
+    public string? SavedProfileId { get; set; }
+    public string? SavedProfileName { get; set; }
     public string? NetworkLabel { get; set; }
     public bool NetworkKnown { get; set; }
     public string? LastMessage { get; set; }

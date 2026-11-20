@@ -47,7 +47,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _bannerTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(7) };
         _bannerTimer.Tick += (_, _) => { _bannerTimer.Stop(); Banner = null; };
 
-        SetupCommand = new RelayCommand(StartTestAsync, () => IsConnected && !IsTesting);
+        // Two separate actions: connect with the saved profile right away, or run the full test.
+        ConnectCommand = new RelayCommand(() => SendAsync(new PipeMessage { Command = Command.Connect }), () => IsConnected && !IsTesting);
+        TestCommand = new RelayCommand(StartTestAsync, () => IsConnected && !IsTesting);
         CancelTestCommand = new RelayCommand(() => SendAsync(new PipeMessage { Command = Command.CancelTest }), () => IsTesting);
         InstallCommand = new RelayCommand(() => InstallAsync(null));
         InstallFromFolderCommand = new RelayCommand(InstallFromFolderAsync);
@@ -71,7 +73,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     // ------------------------------------------------------------------ commands
 
-    public RelayCommand SetupCommand { get; }
+    public RelayCommand ConnectCommand { get; }
+    public RelayCommand TestCommand { get; }
     public RelayCommand CancelTestCommand { get; }
     public RelayCommand InstallCommand { get; }
     public RelayCommand InstallFromFolderCommand { get; }
@@ -136,7 +139,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public string VersionText => _status?.Version ?? "-";
 
     public bool IsTesting => _status?.State == EngineState.Testing;
-    public string BigButtonText => IsTesting ? $"{(int)ProgressValue}%" : L["Home.Setup"];
+    public bool IsNotTesting => !IsTesting;
+    public string BigButtonText =>
+        IsTesting ? $"{(int)ProgressValue}%" :
+        _status?.State == EngineState.Running ? L["Home.Connected"] : L["Home.Connect"];
+    /// <summary>Which profile "Connect" will use, or a hint to run the test first.</summary>
+    public string SavedText => _status?.SavedProfileName is { } n ? L.F("Home.Saved", n) : L["Home.NoSaved"];
 
     private bool _enabled;
     public bool ProtectionEnabled
@@ -203,8 +211,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private void RefreshTexts()
     {
         foreach (var n in new[] { nameof(StateKind), nameof(StateText), nameof(ProfileText), nameof(NetworkText),
-                     nameof(ModeText), nameof(DetailText), nameof(VersionText), nameof(IsTesting), nameof(BigButtonText),
-                     nameof(OverlayText), nameof(Language) })
+                     nameof(ModeText), nameof(DetailText), nameof(VersionText), nameof(IsTesting), nameof(IsNotTesting), nameof(BigButtonText),
+                     nameof(SavedText), nameof(OverlayText), nameof(Language) })
             Raise(n);
         CommandManagerRequery();
     }

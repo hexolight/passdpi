@@ -11,8 +11,9 @@
 
 Servis sağlayıcıların uyguladığı **DPI tabanlı site engellerini**
 [GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI) ile aşan, hafif bir Windows aracı.
-**Ayarla** tuşuna basınca PassDPI bağlantınızda GoodbyeDPI profillerini test eder, çalışanı seçer
-ve her ağ için hatırlar.
+**Test et**'e basınca PassDPI bağlantınızda GoodbyeDPI profillerini test eder, diğer siteleri
+bozmadan çalışanı seçer ve her ağ için hatırlar. Sonrasında **Bağlan**, test yapmadan kayıtlı
+profili hemen başlatır.
 
 - Kurulumda bir kez yönetici izni ister, sonra bir daha sormaz.
 - GoodbyeDPI'ı küçük bir Windows servisi arka planda çalıştırır. Boştayken CPU kullanımı ~%0'dır
@@ -62,7 +63,7 @@ saklanmaz ve hiçbir yere bir şey gönderilmez.
      İsterseniz **Mevcut GoodbyeDPI klasöründen kur** seçeneğini kullanabilirsiniz. Yalnızca bu
      sürüm kabul edilir ve dosyalar korumalı klasöre kopyalanır.
    - `PassDPI` servisini kaydedip başlatır.
-3. **Ayarla**'ya basın.
+3. Bir kez **Test et**'e basın. Bundan sonra **Bağlan**, tekrar test yapmadan kayıtlı profili başlatır.
 
 Sonraki seferlerde PassDPI'ı Başlat menüsünden açabilirsiniz.
 

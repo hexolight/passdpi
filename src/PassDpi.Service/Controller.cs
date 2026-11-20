@@ -288,14 +288,53 @@ public sealed class Controller : IDisposable
 
     // ------------------------------------------------------------------ engine
 
+    /// <summary>Profile that "Connect" uses: pinned manual profile, else this network's memory, else the last one that worked.</summary>
+    private EngineProfile? SavedProfile(out bool noBlockingHere)
+    {
+        noBlockingHere = false;
+        if (_settings.ManualProfileId != null) return ProfileCatalog.Find(_settings.ManualProfileId, _settings.CustomArgs);
+        if (_network != null && _memory.Networks.TryGetValue(_network.Hash, out var rec))
+        {
+            if (rec.ProfileId.Length == 0) { noBlockingHere = true; return null; }
+            var p = ProfileCatalog.Find(rec.ProfileId, _settings.CustomArgs);
+            if (p != null) return p;
+        }
+        return _settings.LastProfileId != null ? ProfileCatalog.Find(_settings.LastProfileId, _settings.CustomArgs) : null;
+    }
+
+    /// <summary>"Connect": start the saved profile now. No test and no verify-then-retest, by design.</summary>
+    private async Task ConnectSavedAsync()
+    {
+        await _op.WaitAsync(_shutdown.Token).ConfigureAwait(false);
+        try
+        {
+            _network = NetworkFingerprint.GetCurrent(_salt);
+            if (!_engineInstalled) { SetState(EngineState.Error, "GoodbyeDPI files are missing or invalid. Reinstall PassDPI.", "EngineMissing"); return; }
+            var p = SavedProfile(out var noBlocking);
+            if (noBlocking) { _engine.Stop(); SetState(EngineState.Off, "No blocking detected on this network", "NoBlocking"); return; }
+            if (p == null) { SetState(EngineState.Off, "No saved profile yet. Run the test first.", "NoSavedProfile"); return; }
+            if (await StartProfileLocked(p, "saved profile (connect)").ConfigureAwait(false))
+                SetState(EngineState.Running, $"Connected: {p.Name}", "Connected");
+        }
+        catch (OperationCanceledException) { }
+        finally { _op.Release(); }
+    }
+
     private async Task<bool> StartProfileLocked(EngineProfile p, string why)
     {
+        // Already running exactly this profile: don't restart it (a restart drops live connections).
+        if (_engine.IsRunning && _engine.Current is { } cur && cur.Id == p.Id && cur.ArgsText == p.ArgsText)
+        {
+            SetState(EngineState.Running, $"Active: {p.Name}", "Active");
+            return true;
+        }
         SetState(EngineState.Starting, $"Starting {p.Name}", "Starting");
         _lastStartUtc = DateTime.UtcNow;
         var ok = await _engine.StartAsync(p, _shutdown.Token).ConfigureAwait(false);
         if (ok)
         {
             _log.Info($"Applied {p.Name} — {why}");
+            if (_settings.LastProfileId != p.Id) { _settings.LastProfileId = p.Id; Save(); }
             _crashCount = why.StartsWith("crash", StringComparison.Ordinal) ? _crashCount : 0;
             SetState(EngineState.Running, $"Active: {p.Name}", "Active");
         }
@@ -360,6 +399,13 @@ public sealed class Controller : IDisposable
                     _settings.ManualProfileId = req.ProfileId; // null = automatic
                     Save();
                     _ = Task.Run(() => EnsureForCurrentNetworkAsync("user request"));
+                    break;
+
+                case Command.Connect:
+                    _testCts?.Cancel();
+                    _settings.Enabled = true;
+                    Save();
+                    _ = Task.Run(ConnectSavedAsync);
                     break;
 
                 case Command.Stop:
@@ -474,6 +520,8 @@ public sealed class Controller : IDisposable
         var profiles = ProfileCatalog.BuiltIn.Select(p => new ProfileInfo { Id = p.Id, Name = p.Name, Arguments = p.ArgsText }).ToList();
         if (_settings.CustomArgs != null)
             profiles.Add(new ProfileInfo { Id = ProfileCatalog.CustomId, Name = "Custom", Arguments = _settings.CustomArgs });
+        EngineProfile? saved = null;
+        try { saved = SavedProfile(out _); } catch { /* memory being rewritten; status is best effort */ }
 
         lock (_stateGate)
         {
@@ -487,6 +535,8 @@ public sealed class Controller : IDisposable
                 ActiveProfileId = active?.Id,
                 ActiveProfileName = active?.Name,
                 ManualProfileId = _settings.ManualProfileId,
+                SavedProfileId = saved?.Id,
+                SavedProfileName = saved?.Name,
                 NetworkLabel = _network?.Label,
                 NetworkKnown = _network != null && _memory.Networks.ContainsKey(_network.Hash),
                 LastMessage = _lastMessage,

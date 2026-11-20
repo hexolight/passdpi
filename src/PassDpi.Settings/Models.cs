@@ -18,6 +18,9 @@ public sealed class ServiceSettings
     public string? CustomArgs { get; set; }
 
     public List<TestSite> Sites { get; set; } = new();
+
+    /// <summary>Last profile that started successfully; "Connect" falls back to it on networks without a memory.</summary>
+    public string? LastProfileId { get; set; }
 }
 
 public sealed class NetworkRecord
