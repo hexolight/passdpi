@@ -50,5 +50,7 @@ public static class SiteValidator
         new() { Url = "https://www.wattpad.com/" },
         new() { Url = "https://www.google.com/generate_204", IsControl = true },
         new() { Url = "https://www.cloudflare.com/", IsControl = true },
+        // More controls make it likelier to notice a profile that breaks normal sites.
+        new() { Url = "https://github.com/", IsControl = true },
     };
 }

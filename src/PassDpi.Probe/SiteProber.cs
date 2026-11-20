@@ -5,7 +5,9 @@ using PassDpi.Core.Protocol;
 
 namespace PassDpi.Probe;
 
-public sealed record SiteResult(string Url, bool IsControl, bool Ok, int Millis, string? Error);
+/// <param name="Ok">Opened in every round; a site that only opens sometimes is not "working".</param>
+/// <param name="OkRounds">How many of <paramref name="Rounds"/> rounds succeeded.</param>
+public sealed record SiteResult(string Url, bool IsControl, bool Ok, int Millis, string? Error, int OkRounds = 0, int Rounds = 1);
 
 public sealed record ProbeResult(IReadOnlyList<SiteResult> Sites)
 {
@@ -31,6 +33,29 @@ public static partial class SiteProber
     public static void FlushDns()
     {
         try { DnsFlushResolverCacheNative(); } catch { /* best effort */ }
+    }
+
+    /// <summary>
+    /// Probes every site <paramref name="rounds"/> times (fresh connections each round). Some profiles open a
+    /// site only intermittently, which users feel as random disconnects, so a site is Ok only if every round worked.
+    /// </summary>
+    public static async Task<ProbeResult> ProbeAsync(IReadOnlyList<TestSite> sites, TimeSpan timeout, CancellationToken ct, int rounds)
+    {
+        if (rounds <= 1) return await ProbeAsync(sites, timeout, ct).ConfigureAwait(false);
+        var all = new List<ProbeResult>();
+        for (var i = 0; i < rounds; i++)
+            all.Add(await ProbeAsync(sites, timeout, ct).ConfigureAwait(false));
+
+        var merged = new List<SiteResult>();
+        for (var s = 0; s < sites.Count; s++)
+        {
+            var per = all.Select(r => r.Sites[s]).ToList();
+            var ok = per.Where(x => x.Ok).ToList();
+            merged.Add(new SiteResult(per[0].Url, per[0].IsControl, ok.Count == rounds,
+                ok.Count > 0 ? (int)ok.Average(x => x.Millis) : per.Max(x => x.Millis),
+                per.FirstOrDefault(x => !x.Ok)?.Error, ok.Count, rounds));
+        }
+        return new ProbeResult(merged);
     }
 
     public static async Task<ProbeResult> ProbeAsync(IReadOnlyList<TestSite> sites, TimeSpan timeout, CancellationToken ct)
@@ -63,16 +88,16 @@ public static partial class SiteProber
         {
             using var req = new HttpRequestMessage(HttpMethod.Get, site.Url);
             using var resp = await http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, cts.Token).ConfigureAwait(false);
-            return new SiteResult(site.Url, site.IsControl, true, (int)sw.ElapsedMilliseconds, null);
+            return new SiteResult(site.Url, site.IsControl, true, (int)sw.ElapsedMilliseconds, null, 1, 1);
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
-            return new SiteResult(site.Url, site.IsControl, false, (int)sw.ElapsedMilliseconds, "timeout");
+            return new SiteResult(site.Url, site.IsControl, false, (int)sw.ElapsedMilliseconds, "timeout", 0, 1);
         }
         catch (HttpRequestException ex)
         {
             var msg = ex.InnerException?.GetType().Name ?? ex.HttpRequestError.ToString();
-            return new SiteResult(site.Url, site.IsControl, false, (int)sw.ElapsedMilliseconds, msg);
+            return new SiteResult(site.Url, site.IsControl, false, (int)sw.ElapsedMilliseconds, msg, 0, 1);
         }
     }
 }

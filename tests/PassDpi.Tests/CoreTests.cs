@@ -145,4 +145,47 @@ public class ProbeScoreTests
         });
         Assert.Equal(0.5, r.Score);
     }
+
+    // Measured on a real Turkish ISP: -9 opened every blocked site but intermittently broke a normal
+    // site (felt as slowdowns, game errors, Discord drops); -5 opened 2 of 3 and broke nothing.
+    private static ProbeResult Measured(bool wattpad, bool cloudflareControl) => new(new[]
+    {
+        new SiteResult("https://discord.com/", false, true, 90, null, 2, 2),
+        new SiteResult("https://www.roblox.com/", false, true, 350, null, 2, 2),
+        new SiteResult("https://www.wattpad.com/", false, wattpad, 400, wattpad ? null : "SocketException", wattpad ? 2 : 0, 2),
+        new SiteResult("https://www.google.com/generate_204", true, true, 120, null, 2, 2),
+        new SiteResult("https://www.cloudflare.com/", true, cloudflareControl, 220, cloudflareControl ? null : "Win32Exception", cloudflareControl ? 2 : 1, 2),
+    });
+
+    private static readonly HashSet<string> Healthy = new() { "https://www.google.com/generate_204", "https://www.cloudflare.com/" };
+
+    [Fact]
+    public void Clean_profile_beats_one_that_breaks_normal_sites()
+    {
+        var m9 = Measured(wattpad: true, cloudflareControl: false);
+        var m5 = Measured(wattpad: false, cloudflareControl: true);
+        Assert.False(ProfileTester.IsClean(m9, Healthy));
+        Assert.True(ProfileTester.IsClean(m5, Healthy));
+        Assert.True(ProfileTester.IsBetter(m5, true, m9, false));
+        Assert.False(ProfileTester.IsBetter(m9, false, m5, true));
+    }
+
+    [Fact]
+    public void Clean_profile_that_opens_nothing_does_not_win()
+    {
+        var useless = new ProbeResult(Measured(false, true).Sites.Select(s => s.IsControl ? s : s with { Ok = false, OkRounds = 0 }).ToList());
+        var m9 = Measured(true, false);
+        Assert.True(ProfileTester.IsBetter(m9, false, useless, true));
+    }
+
+    [Fact]
+    public void Flaky_site_is_not_ok_and_lowers_score()
+    {
+        var r = new ProbeResult(new[]
+        {
+            new SiteResult("https://a.com/", false, false, 100, "timeout", 1, 2),
+            new SiteResult("https://g.com/", true, true, 50, null, 2, 2),
+        });
+        Assert.Equal(0, r.Score);
+    }
 }
